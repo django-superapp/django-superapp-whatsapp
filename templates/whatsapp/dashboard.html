@@ -1,0 +1,127 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+<style>
+    .message-container {
+        margin-bottom: 20px;
+    }
+    .message-list {
+        max-height: 600px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        padding: 10px;
+    }
+    .message {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+    }
+    .incoming {
+        background-color: #f1f1f1;
+        margin-right: 20%;
+    }
+    .outgoing {
+        background-color: #dcf8c6;
+        margin-left: 20%;
+    }
+    .message-header {
+        font-size: 0.8em;
+        color: #666;
+        margin-bottom: 5px;
+    }
+    .message-content {
+        word-break: break-word;
+    }
+    .message-status {
+        font-size: 0.7em;
+        text-align: right;
+        color: #666;
+    }
+    .phone-number-card {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="module">
+    <h2>{% trans "WhatsApp Dashboard" %}</h2>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <h3>{% trans "Phone Numbers" %}</h3>
+            {% if phone_numbers %}
+                {% for phone in phone_numbers %}
+                <div class="phone-number-card">
+                    <h4>{{ phone.display_name }}</h4>
+                    <p><strong>{% trans "Number:" %}</strong> {{ phone.phone_number }}</p>
+                    <p><strong>{% trans "Status:" %}</strong> 
+                        {% if phone.is_active %}
+                            <span style="color: green;">{% trans "Active" %}</span>
+                        {% else %}
+                            <span style="color: red;">{% trans "Inactive" %}</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>{% trans "ID:" %}</strong> {{ phone.phone_number_id }}</p>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>{% trans "No phone numbers configured." %}</p>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-8">
+            <h3>{% trans "Recent Messages" %}</h3>
+            <div class="message-list">
+                {% if recent_messages %}
+                    {% for message in recent_messages %}
+                    <div class="message {% if message.direction == 'incoming' %}incoming{% else %}outgoing{% endif %}">
+                        <div class="message-header">
+                            {% if message.direction == 'incoming' %}
+                                <strong>{% trans "From:" %}</strong> {{ message.from_number }}
+                            {% else %}
+                                <strong>{% trans "To:" %}</strong> {{ message.to_number }}
+                            {% endif %}
+                            <span class="float-right">{{ message.timestamp|date:"M d, Y H:i:s" }}</span>
+                        </div>
+                        <div class="message-content">
+                            {% if message.message_type == 'text' %}
+                                {{ message.content }}
+                            {% elif message.media_file %}
+                                {% if message.message_type == 'image' %}
+                                    <img src="{{ message.media_file }}" alt="Image" style="max-width: 100%;">
+                                {% elif message.message_type == 'video' %}
+                                    <video controls style="max-width: 100%;">
+                                        <source src="{{ message.media_file }}" type="video/mp4">
+                                        {% trans "Your browser does not support the video tag." %}
+                                    </video>
+                                {% elif message.message_type == 'audio' %}
+                                    <audio controls>
+                                        <source src="{{ message.media_file }}" type="audio/mpeg">
+                                        {% trans "Your browser does not support the audio tag." %}
+                                    </audio>
+                                {% elif message.message_type == 'document' %}
+                                    <a href="{{ message.media_file }}" target="_blank">{% trans "View Document" %}</a>
+                                {% endif %}
+                                <p>{{ message.content }}</p>
+                            {% else %}
+                                <p>{{ message.content }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="message-status">
+                            {{ message.get_status_display }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>{% trans "No messages yet." %}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
