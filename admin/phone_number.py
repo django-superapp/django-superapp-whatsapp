@@ -10,11 +10,25 @@ from unfold.decorators import action
 
 from superapp.apps.admin_portal.admin import SuperAppModelAdmin
 from superapp.apps.admin_portal.sites import superapp_admin_site
+from superapp.apps.admin_portal.widgets import PasswordToggleWidget
 from superapp.apps.whatsapp.models import PhoneNumber
+from django import forms
 
+
+class PhoneNumberForm(forms.ModelForm):
+    class Meta:
+        model = PhoneNumber
+        fields = '__all__'
+        widgets = {
+            'access_token': PasswordToggleWidget(),
+            'waha_password': PasswordToggleWidget(),
+            'webhook_token': PasswordToggleWidget(),
+            'verify_token': PasswordToggleWidget(),
+        }
 
 @admin.register(PhoneNumber, site=superapp_admin_site)
 class PhoneNumberAdmin(SuperAppModelAdmin):
+    form = PhoneNumberForm
     list_display = ['display_name', 'phone_number', 'api_type', 'phone_number_id', 'is_active', 'is_configured', 'created_at']
     search_fields = ['display_name', 'phone_number', 'phone_number_id']
     list_filter = ['api_type', 'is_active', 'is_configured', 'created_at']
@@ -83,7 +97,7 @@ class PhoneNumberAdmin(SuperAppModelAdmin):
         # Add API-specific fieldsets based on the API type
         if obj is None or obj.is_official_api():
             fieldsets.insert(1, ('Official WhatsApp Business API', {
-                'fields': ('phone_number_id', 'business_account_id', 'access_token'),
+                'fields': ('phone_number_id', 'business_account_id', 'access_token', 'verify_token'),
                 'description': _('Configure the official WhatsApp Business API credentials')
             }))
 
@@ -140,8 +154,7 @@ class PhoneNumberAdmin(SuperAppModelAdmin):
                     '</ul>'
                     '<p class="dark:text-gray-300 mt-2">Use this callback URL:</p>'
                     '<code class="block p-2 mt-2 bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-300 rounded text-sm overflow-auto">{}/{}</code>'
-                    '<p class="dark:text-gray-300 mt-3">Use this verify token:</p>'
-                    '<code class="block p-2 mt-2 bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-300 rounded text-sm overflow-auto">{}</code>'
+                    '<p class="dark:text-gray-300 mt-3">Use the verify token from Official WhatsApp Business API section.</p>'
                     '</div>'
                     '<div class="p-3 bg-white dark:bg-gray-700 rounded border border-gray-100 dark:border-gray-600">'
                     '<strong class="block text-gray-700 dark:text-gray-300 mb-2">3. Verify API Connection:</strong>'
@@ -156,7 +169,6 @@ class PhoneNumberAdmin(SuperAppModelAdmin):
                     '</div>',
                     request.build_absolute_uri('/api/whatsapp/webhook'),
                     obj.webhook_token + "/",
-                    obj.verify_token
                 )
             elif obj.is_waha_api():
                 webhook_button = self.configure_waha_webhook_button(obj)
@@ -397,3 +409,4 @@ class PhoneNumberAdmin(SuperAppModelAdmin):
             )
             
         return form
+

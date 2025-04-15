@@ -3,7 +3,7 @@ import logging
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from superapp.apps.easywindow.enums import Languages
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class Template(models.Model):
     # Template identification
     template_id = models.CharField(_('Template ID'), max_length=255, blank=True, null=True)
     name = models.CharField(_('Template Name'), max_length=255)
-    language = models.CharField(_('Language'), max_length=10, choices=Languages.choices, default=Languages.ROMANIAN)
+    language = models.CharField(_('Language'), max_length=10, default=settings.DEFAULT_LANGUAGE_CODE)
     
     # Template status and category
     status = models.CharField(_('Status'), max_length=20, choices=TEMPLATE_STATUS_CHOICES, default='PENDING')
