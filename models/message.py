@@ -2,9 +2,7 @@ import uuid
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
-from superapp.apps.easywindow.enums import Languages
-
+from django.conf import settings
 
 class Message(models.Model):
     """
@@ -194,7 +192,7 @@ class Message(models.Model):
         # Create content with template name and structured variables
         content = json.dumps({
             "name": template_name,
-            "language": template_variables.get("language", {"code": Languages.ROMANIAN}),
+            "language": template_variables.get("language", {"code": settings.DEFAULT_LANGUAGE_CODE}),
             "components": template_variables.get("components", [])
         })
             

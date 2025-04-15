@@ -57,3 +57,4 @@ def extend_superapp_settings(main_settings):
             },
         ]
     })
+    main_settings['DEFAULT_LANGUAGE_CODE'] = os.environ.get('DEFAULT_LANGUAGE_CODE', 'ro')

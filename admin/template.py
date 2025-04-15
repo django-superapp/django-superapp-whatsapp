@@ -7,9 +7,8 @@ from django.utils.translation import gettext_lazy as _
 
 from superapp.apps.admin_portal.admin import SuperAppModelAdmin
 from superapp.apps.admin_portal.sites import superapp_admin_site
-from superapp.apps.easywindow.enums import Languages
 from superapp.apps.whatsapp.models import Template
-
+from django.conf import settings
 
 @admin.register(Template, site=superapp_admin_site)
 class TemplateAdmin(SuperAppModelAdmin):
@@ -258,7 +257,7 @@ class TemplateAdmin(SuperAppModelAdmin):
             return mark_safe(str(_('No variables required for this template')))
 
         c = {
-            "language": {"code": Languages.ROMANIAN},
+            "language": {"code": settings.DEFAULT_LANGUAGE_CODE},
             "components": components_params,
         }
         # Format the JSON for display
