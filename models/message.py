@@ -41,6 +41,8 @@ class Message(models.Model):
     template_variables = models.JSONField(
         _("template variables"),
         default=dict,
+        blank=True,
+        null=True,
         help_text=_("Variables used in the template, including body parameters and button parameters"),
     )
 
@@ -121,7 +123,7 @@ class Message(models.Model):
             phone_number=phone_number,
             contact=contact,
             template=template,
-            template_variables=template_params,
+            template_variables=template_params or {},
             from_number=phone_number.phone_number,
             to_number=to_number,
             direction='outgoing',
